@@ -1,4 +1,4 @@
-package model;
+package com.cbag.autoatendimento.model;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
@@ -9,7 +9,8 @@ import jakarta.validation.constraints.NotNull;
 @Entity
 public class Produto {
     @Id
-    private long codigo;
+    @NotNull(message = "O código deve ser informado.")
+    private Long codigo;
     @NotEmpty(message = "É necessário informar o nome do produto.")
     private String nome;
     @NotNull(message = "É necessário informar o preço.")
@@ -21,7 +22,8 @@ public class Produto {
 
     }
 
-    public Produto(String nome, double preco, String imagemBase64) {
+    public Produto(Long codigo, String nome, double preco, String imagemBase64) {
+        setCodigo(codigo);
         setNome(nome);
         setPreco(preco);
         setImagemBase64(imagemBase64);

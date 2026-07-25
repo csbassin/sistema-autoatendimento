@@ -1,6 +1,6 @@
-package model;
+package com.cbag.autoatendimento.model;
 
-import enums.TipoSalgado;
+import com.cbag.autoatendimento.enums.TipoSalgado;
 import jakarta.persistence.Entity;
 import jakarta.validation.constraints.NotNull;
 
@@ -11,6 +11,12 @@ public class Salgado extends Produto{
     @NotNull(message = "É necessário informar se o salgado é congelado ou frito.")
     private TipoSalgado tipo;
 
+    public Salgado(){}
+    public Salgado(long codigo, String nome, double preco, String imagemBase64, Integer quantidade, TipoSalgado tipo) {
+        super(codigo, nome, preco, imagemBase64);
+        this.quantidade = quantidade;
+        this.tipo = tipo;
+    }
     public Integer getQuantidade() {
         return quantidade;
     }
@@ -29,5 +35,9 @@ public class Salgado extends Produto{
 
     public void setTipo(TipoSalgado tipo) {
         this.tipo = tipo;
+    }
+    @Override
+    public String toString() {
+        return getNome()+" - "+getQuantidade()+"un.";
     }
 }

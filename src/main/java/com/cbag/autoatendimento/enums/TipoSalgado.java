@@ -1,4 +1,4 @@
-package enums;
+package com.cbag.autoatendimento.enums;
 
 public enum TipoSalgado {
     FRITO("frito", true), CONGELADO("congelado", false);
