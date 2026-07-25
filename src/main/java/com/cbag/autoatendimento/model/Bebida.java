@@ -1,5 +1,6 @@
 package com.cbag.autoatendimento.model;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.validation.constraints.NotNull;
 
@@ -7,6 +8,7 @@ import jakarta.validation.constraints.NotNull;
 public class Bebida extends Produto{
     @NotNull
     private Integer quantidadeEmEstoque;
+    @Column(unique = true) // faz com que o campo não possa se repetir
     private Long codBarras;
 
     public Bebida(){}
