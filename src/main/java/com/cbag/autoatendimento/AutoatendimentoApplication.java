@@ -1,12 +1,16 @@
 package com.cbag.autoatendimento;
 
+import com.cbag.autoatendimento.config.StaticConfigObjects;
+import com.cbag.autoatendimento.enums.EstadoPedido;
 import com.cbag.autoatendimento.enums.TipoSalgado;
 import com.cbag.autoatendimento.model.Bebida;
 import com.cbag.autoatendimento.model.MovimentacaoEstoque;
+import com.cbag.autoatendimento.model.Pedido;
 import com.cbag.autoatendimento.model.Salgado;
 import com.cbag.autoatendimento.repo.MovimentacaoEstoqueRepository;
 import com.cbag.autoatendimento.service.BebidaService;
 import com.cbag.autoatendimento.service.MovimentacaoEstoqueService;
+import com.cbag.autoatendimento.service.PedidoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -24,6 +28,8 @@ public class AutoatendimentoApplication implements CommandLineRunner {
     private BebidaService bebidaService;
     @Autowired
     private MovimentacaoEstoqueService movimentacaoEstoqueService;
+    @Autowired
+    private PedidoService pedidoService;
 
     public static void main(String[] args) {
         SpringApplication.run(AutoatendimentoApplication.class, args);
@@ -48,6 +54,11 @@ public class AutoatendimentoApplication implements CommandLineRunner {
         // colocando uma alteração de estoque, teste porque temos dados redundantes
         movimentacaoEstoqueService.cadastrar(new MovimentacaoEstoque(coca, -10, "alterada nos testes."));
         movimentacaoEstoqueService.cadastrar(new MovimentacaoEstoque(fanta, 5, "alterada nos testes."));
+
+        //testando o path para o home do usuário
+        System.out.println(StaticConfigObjects.userHomeDir);
+
+        Pedido p = pedidoService.cadastrar(new Pedido("geraldo", EstadoPedido.PREPARANDO, true));
         //fim teste
     }
 }
