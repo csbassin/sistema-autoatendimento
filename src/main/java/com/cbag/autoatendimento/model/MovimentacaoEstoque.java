@@ -4,6 +4,8 @@ import com.cbag.autoatendimento.model.idClasses.MovimentacaoEstoqueId;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 
+import java.time.LocalDateTime;
+
 @Entity
 @IdClass(MovimentacaoEstoqueId.class)
 public class MovimentacaoEstoque {
@@ -16,12 +18,15 @@ public class MovimentacaoEstoque {
     @NotNull(message = "Deve ser informada a quantidade movimentada.")
     private Integer quantidadeAlterada;
     private String obs;
+    @NotNull(message = "Data e hora da movimentação precisam ser informadas.")
+    private LocalDateTime timestamp;
 
     public MovimentacaoEstoque() {}
     public MovimentacaoEstoque(Produto prouto, Integer quantidadeAlterada, String obs) {
         this.produto = prouto;
         this.quantidadeAlterada = quantidadeAlterada;
         this.obs = obs;
+        this.timestamp = LocalDateTime.now();
     }
 
     public Produto getProduto() {
