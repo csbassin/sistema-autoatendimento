@@ -23,7 +23,7 @@ public class ReciptCliente {
         }
         this.pedido = pedido;
     }
-    private void addTextToBuffer(String text){
+   /* private void addTextToBuffer(String text){
         text = new String(text.getBytes(), StandardCharsets.ISO_8859_1); // iso 8859-1 é o mais parecido com ibm 850, que a impressora suporta
         for(int i = 0; i < text.getBytes().length; i++){
             buffer.add(text.getBytes()[i]);
@@ -31,38 +31,37 @@ public class ReciptCliente {
     }
     private void addCommandToBuffer(String command){
         Byte[] bytes;
-        bytes = EpsonByteSheet.get(command);
+        bytes = EpsonPrinterCommands.get(command);
         buffer.addAll(Arrays.asList(bytes));
     }
     private void addCommandWithArgumentsToBuffer(String command, byte[] args){
         Byte[] bytes;
-        bytes = EpsonByteSheet.get(command);
+        bytes = EpsonPrinterCommands.get(command);
         buffer.addAll(Arrays.asList(bytes));
         for (byte arg : args) {
             buffer.add(arg);
         }
-    }
+    }*/
     public void montarBuffer(){
         //inicializar a impressora
-        addCommandToBuffer("INITIALIZE");
-        // setar página para 2, encoding IBM 850, compatível com iso 8859-1
-        addCommandWithArgumentsToBuffer("SET CODE PAGE", new byte[]{0x2});
+        EpsonPrinterCommands.writeCommandToBuffer(buffer, EpsonPrinterCommands.INITIALIZE);
+        // setar página para 0, encoding IBM 437
+        EpsonPrinterCommands.writeCommadWithArgsToBuffer(buffer,EpsonPrinterCommands.SET_CODE_PAGE, new byte[]{0x0});
         // texto: Fábrica Mini-Gostosuras: Autoatendimento
-        addTextToBuffer("Fábrica Mini-Gostosuras: Autoatendimento");
+        EpsonPrinterCommands.writeStringToBuffer(buffer, "Fábrica Mini-Gostosuras: Autoatendimento");
         //line feed
-        addCommandToBuffer("LINE FEED");
-        addTextToBuffer("Pedido:");
+        EpsonPrinterCommands.writeCommandToBuffer(buffer, EpsonPrinterCommands.LINE_FEED);
+        EpsonPrinterCommands.writeStringToBuffer(buffer, "Pedido:");
         //bold
-        addCommandWithArgumentsToBuffer("BOLD", new byte[]{0x1});
+        EpsonPrinterCommands.writeCommadWithArgsToBuffer(buffer,EpsonPrinterCommands.BOLD, new byte[]{0x1});
         // nome do cliente e número
-        addTextToBuffer(pedido.getNumero().toString());
-        addCommandToBuffer("LINE FEED");
-        addTextToBuffer(pedido.getNomeCliente());
+        EpsonPrinterCommands.writeStringToBuffer(buffer, pedido.getNumero().toString());
+        EpsonPrinterCommands.writeCommandToBuffer(buffer, EpsonPrinterCommands.LINE_FEED);
+        EpsonPrinterCommands.writeStringToBuffer(buffer, pedido.getNomeCliente());
         //desliga bold
-        addCommandWithArgumentsToBuffer("BOLD", new byte[]{0x0});
+        EpsonPrinterCommands.writeCommadWithArgsToBuffer(buffer,EpsonPrinterCommands.BOLD, new byte[]{0x0});
         //todo terminar os comandos aqui
-        addCommandToBuffer("LINE FEED");
-        addCommandWithArgumentsToBuffer("PARTIAL PAPER CUT WITH FEED", new byte[]{0x10});
+        EpsonPrinterCommands.writeCommadWithArgsToBuffer(buffer, EpsonPrinterCommands.PARTIAL_PAPER_CUT_WITH_FEED, new byte[]{0x11});
     }
 
     public void flushAndPrint() throws FileNotFoundException {

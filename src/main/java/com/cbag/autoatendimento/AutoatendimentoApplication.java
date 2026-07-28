@@ -58,7 +58,7 @@ public class AutoatendimentoApplication implements CommandLineRunner {
         //testando o path para o home do usuário
         System.out.println(StaticConfigObjects.userHomeDir);
 
-        Pedido p = pedidoService.cadastrar(new Pedido("geraldo", EstadoPedido.PREPARANDO, true));
+        //Pedido p = pedidoService.cadastrar(new Pedido("geraldo", EstadoPedido.PREPARANDO, true));
         //fim teste
     }
 }
