@@ -1,34 +1,29 @@
 package com.cbag.autoatendimento;
 
+import com.cbag.autoatendimento.config.DadosIniciais;
 import com.cbag.autoatendimento.config.StaticConfigObjects;
-import com.cbag.autoatendimento.enums.EstadoPedido;
-import com.cbag.autoatendimento.enums.TipoSalgado;
-import com.cbag.autoatendimento.model.*;
-import com.cbag.autoatendimento.repo.MovimentacaoEstoqueRepository;
-import com.cbag.autoatendimento.service.BebidaService;
+import com.cbag.autoatendimento.model.MovimentacaoEstoque;
+import com.cbag.autoatendimento.model.Produto;
+import com.cbag.autoatendimento.model.TipoProduto;
 import com.cbag.autoatendimento.service.MovimentacaoEstoqueService;
-import com.cbag.autoatendimento.service.PedidoService;
+import com.cbag.autoatendimento.service.ProdutoService;
+import com.cbag.autoatendimento.service.TipoProdutoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import com.cbag.autoatendimento.service.SalgadoService;
-
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
 @SpringBootApplication
 public class AutoatendimentoApplication implements CommandLineRunner {
 
     @Autowired
-    private SalgadoService salgadoService;
+    private DadosIniciais dadosIniciais;
     @Autowired
-    private BebidaService bebidaService;
+    private TipoProdutoService tipoProdutoService;
+    @Autowired
+    private ProdutoService produtoService;
     @Autowired
     private MovimentacaoEstoqueService movimentacaoEstoqueService;
-    @Autowired
-    private PedidoService pedidoService;
 
     public static void main(String[] args) {
         SpringApplication.run(AutoatendimentoApplication.class, args);
@@ -37,28 +32,42 @@ public class AutoatendimentoApplication implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
+        dadosIniciais.popular();
+
         //teste
-        salgadoService.cadastrar(new Salgado(1, "Coxinha", 10.00, "imagem lol", 50, TipoSalgado.FRITO));
-        Bebida fanta = bebidaService.cadastrar(new Bebida((long)2, "Fanta Laranja", 4.00, "imagem", 0,0));
-        Bebida coca = bebidaService.cadastrar(new Bebida((long)3, "Coca-Cola", 5.00, "k", 10,1));
-        //imprimir listagem de bebidas
-        System.out.println("Bebidas cadastradas: ");
-        for(Bebida b:bebidaService.recuperarTudo()){
-            System.out.println("    ->"+b.toString());
+        System.out.println("Tipos de produto cadastrados: ");
+        for (TipoProduto t : tipoProdutoService.recuperarTudo()) {
+            System.out.println("    ->" + t + " (controla estoque: " + t.getControlaEstoque() + ")");
+            System.out.println("       campos: " + t.getCampos());
         }
-        System.out.println("Bebidas com estoque maior que zero: ");
-        for(Bebida b:bebidaService.recuperarWhereEstoqueMaiorQueZero()){
-            System.out.println("    ->"+b.toString());
+
+        System.out.println("Produtos cadastrados: ");
+        for (Produto p : produtoService.recuperarTudo()) {
+            System.out.println("    ->" + p + " [" + p.getTipoProduto() + "] estoque=" + p.getQuantidadeEmEstoque()
+                    + " campos=" + p.getCampos());
         }
-        // colocando uma alteração de estoque, teste porque temos dados redundantes
+
+        System.out.println("Produtos com estoque maior que zero: ");
+        for (Produto p : produtoService.recuperarWhereEstoqueMaiorQueZero()) {
+            System.out.println("    ->" + p);
+        }
+
+        System.out.println("Produtos disponíveis para venda: ");
+        for (Produto p : produtoService.recuperarDisponiveis()) {
+            System.out.println("    ->" + p);
+        }
+
+        Produto coca = produtoService.recuperarPorCodigo(3L);
+        Produto fanta = produtoService.recuperarPorCodigo(2L);
         movimentacaoEstoqueService.cadastrar(new MovimentacaoEstoque(coca, -10, "alterada nos testes."));
         movimentacaoEstoqueService.cadastrar(new MovimentacaoEstoque(fanta, 5, "alterada nos testes."));
 
-        //testando o path para o home do usuário
-        System.out.println(StaticConfigObjects.userHomeDir);
-        //List<ItemPedido> itens = new ArrayList<>();
+        System.out.println("Estoque após as movimentações: ");
+        for (Produto p : produtoService.recuperarWhereEstoqueMaiorQueZero()) {
+            System.out.println("    ->" + p + ": " + p.getQuantidadeEmEstoque());
+        }
 
-        Pedido p = pedidoService.cadastrar(new Pedido("geraldo", EstadoPedido.PREPARANDO, true));
+        System.out.println(StaticConfigObjects.userHomeDir);
         //fim teste
     }
 }

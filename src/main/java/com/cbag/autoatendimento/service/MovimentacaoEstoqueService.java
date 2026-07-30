@@ -1,29 +1,53 @@
 package com.cbag.autoatendimento.service;
 
+import com.cbag.autoatendimento.exception.EstoqueInvalidoException;
 import com.cbag.autoatendimento.exception.NaoEncontradoException;
-import com.cbag.autoatendimento.model.Bebida;
 import com.cbag.autoatendimento.model.MovimentacaoEstoque;
+import com.cbag.autoatendimento.model.Produto;
 import com.cbag.autoatendimento.repo.MovimentacaoEstoqueRepository;
+import com.cbag.autoatendimento.repo.ProdutoRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class MovimentacaoEstoqueService {
-    // todo implementar tudo
     @Autowired
     private MovimentacaoEstoqueRepository movimentacaoEstoqueRepository;
     @Autowired
-    private BebidaService bebidaService;
+    private ProdutoRepository produtoRepository;
 
-    public MovimentacaoEstoque cadastrar(MovimentacaoEstoque movimentacaoEstoque) throws NaoEncontradoException {
-        // quando cadastrar a movimentação de estoque, precisa também alterar o produto
-        Bebida b = bebidaService.recuperarPorCodigo(movimentacaoEstoque.getProduto().getCodigo());
-        if(b == null){
-            throw new NaoEncontradoException("Não foi encontrada uma bebida com código "+movimentacaoEstoque.getProduto().getCodigo());
+    @Transactional
+    public MovimentacaoEstoque cadastrar(MovimentacaoEstoque movimentacaoEstoque) throws NaoEncontradoException, EstoqueInvalidoException {
+        if (movimentacaoEstoque.getProduto() == null || movimentacaoEstoque.getProduto().getCodigo() == null) {
+            throw new NaoEncontradoException("É necessário informar o produto da movimentação.");
         }
-        b.setQuantidadeEmEstoque(b.getQuantidadeEmEstoque()+movimentacaoEstoque.getQuantidadeAlterada());
-        bebidaService.alterar(b);
+        Long codigo = movimentacaoEstoque.getProduto().getCodigo();
+
+        Produto produto = produtoRepository.recuperarPorCodigoETravar(codigo)
+                .orElseThrow(() -> new NaoEncontradoException("Não foi encontrado um produto com código " + codigo));
+
+        if (!produto.controlaEstoque()) {
+            throw new EstoqueInvalidoException("O produto " + produto + " é do tipo " + produto.getTipoProduto().getNome()
+                    + ", que não controla estoque.");
+        }
+
+        int novaQuantidade = produto.getQuantidadeEmEstoque() + movimentacaoEstoque.getQuantidadeAlterada();
+        if (novaQuantidade < 0) {
+            throw new EstoqueInvalidoException("O produto " + produto + " tem apenas " + produto.getQuantidadeEmEstoque()
+                    + " unidades em estoque, não é possível retirar " + Math.abs(movimentacaoEstoque.getQuantidadeAlterada()) + ".");
+        }
+
+        produto.setQuantidadeEmEstoque(novaQuantidade);
+        produtoRepository.save(produto);
+
+        movimentacaoEstoque.setProduto(produto);
         return movimentacaoEstoqueRepository.save(movimentacaoEstoque);
     }
 
+    public List<MovimentacaoEstoque> recuperarPorProduto(Long codigo) {
+        return movimentacaoEstoqueRepository.findByProdutoCodigoOrderByTimestampDesc(codigo);
+    }
 }
