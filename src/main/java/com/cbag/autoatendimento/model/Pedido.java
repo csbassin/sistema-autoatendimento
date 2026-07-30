@@ -37,6 +37,13 @@ public class Pedido {
         //this.itensPedido = itensPedido;
         this.pagamentoPendente = pagamentoPendente;
     }
+    public Pedido(String nomeCliente,  EstadoPedido estadoPedido, List<ItemPedido> itensPedido, boolean pagamentoPendente) {
+        this.timestamp = LocalDateTime.now();
+        this.nomeCliente = nomeCliente;
+        this.estadoPedido = estadoPedido;
+        this.itensPedido = itensPedido;
+        this.pagamentoPendente = pagamentoPendente;
+    }
 
     public Long getNumero() {
         return numero;
@@ -97,7 +104,7 @@ public class Pedido {
         if(cachedPreco == null){
             cachedPreco = 0.0;
             for(ItemPedido itemPedido : itensPedido) {
-                cachedPreco += itemPedido.getPreco();
+                cachedPreco += (itemPedido.getPreco()* itemPedido.getQuantidade());
             }
         }
         return cachedPreco;

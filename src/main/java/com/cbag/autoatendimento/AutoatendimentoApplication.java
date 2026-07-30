@@ -3,10 +3,7 @@ package com.cbag.autoatendimento;
 import com.cbag.autoatendimento.config.StaticConfigObjects;
 import com.cbag.autoatendimento.enums.EstadoPedido;
 import com.cbag.autoatendimento.enums.TipoSalgado;
-import com.cbag.autoatendimento.model.Bebida;
-import com.cbag.autoatendimento.model.MovimentacaoEstoque;
-import com.cbag.autoatendimento.model.Pedido;
-import com.cbag.autoatendimento.model.Salgado;
+import com.cbag.autoatendimento.model.*;
 import com.cbag.autoatendimento.repo.MovimentacaoEstoqueRepository;
 import com.cbag.autoatendimento.service.BebidaService;
 import com.cbag.autoatendimento.service.MovimentacaoEstoqueService;
@@ -18,6 +15,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import com.cbag.autoatendimento.service.SalgadoService;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @SpringBootApplication
 public class AutoatendimentoApplication implements CommandLineRunner {
@@ -57,8 +56,9 @@ public class AutoatendimentoApplication implements CommandLineRunner {
 
         //testando o path para o home do usuário
         System.out.println(StaticConfigObjects.userHomeDir);
+        //List<ItemPedido> itens = new ArrayList<>();
 
-        //Pedido p = pedidoService.cadastrar(new Pedido("geraldo", EstadoPedido.PREPARANDO, true));
+        Pedido p = pedidoService.cadastrar(new Pedido("geraldo", EstadoPedido.PREPARANDO, true));
         //fim teste
     }
 }

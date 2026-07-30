@@ -1,8 +1,11 @@
 package com.cbag.autoatendimento.model.printer;
 
 import com.cbag.autoatendimento.config.StaticConfigObjects;
+import com.cbag.autoatendimento.exception.ItensPedidoNaoInicializada;
 import com.cbag.autoatendimento.exception.PedidoSemNumeroException;
+import com.cbag.autoatendimento.model.ItemPedido;
 import com.cbag.autoatendimento.model.Pedido;
+import com.cbag.autoatendimento.util.Formatters;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -23,44 +26,58 @@ public class ReciptCliente {
         }
         this.pedido = pedido;
     }
-   /* private void addTextToBuffer(String text){
-        text = new String(text.getBytes(), StandardCharsets.ISO_8859_1); // iso 8859-1 é o mais parecido com ibm 850, que a impressora suporta
-        for(int i = 0; i < text.getBytes().length; i++){
-            buffer.add(text.getBytes()[i]);
-        }
-    }
-    private void addCommandToBuffer(String command){
-        Byte[] bytes;
-        bytes = EpsonPrinterCommands.get(command);
-        buffer.addAll(Arrays.asList(bytes));
-    }
-    private void addCommandWithArgumentsToBuffer(String command, byte[] args){
-        Byte[] bytes;
-        bytes = EpsonPrinterCommands.get(command);
-        buffer.addAll(Arrays.asList(bytes));
-        for (byte arg : args) {
-            buffer.add(arg);
-        }
-    }*/
+
     public void montarBuffer(){
         //inicializar a impressora
         EpsonPrinterCommands.writeCommandToBuffer(buffer, EpsonPrinterCommands.INITIALIZE);
         // setar página para 0, encoding IBM 437
         EpsonPrinterCommands.writeCommadWithArgsToBuffer(buffer,EpsonPrinterCommands.SET_CODE_PAGE, new byte[]{0x0});
+        EpsonPrinterCommands.writeCommadWithArgsToBuffer(buffer,EpsonPrinterCommands.JUSTIFICATION, new byte[]{0x1}); // centraliza o texto
         // texto: Fábrica Mini-Gostosuras: Autoatendimento
         EpsonPrinterCommands.writeStringToBuffer(buffer, "Fábrica Mini-Gostosuras: Autoatendimento");
+        EpsonPrinterCommands.writeCommadWithArgsToBuffer(buffer,EpsonPrinterCommands.JUSTIFICATION, new byte[]{0x0});
+
         //line feed
         EpsonPrinterCommands.writeCommandToBuffer(buffer, EpsonPrinterCommands.LINE_FEED);
         EpsonPrinterCommands.writeStringToBuffer(buffer, "Pedido:");
         //bold
         EpsonPrinterCommands.writeCommadWithArgsToBuffer(buffer,EpsonPrinterCommands.BOLD, new byte[]{0x1});
+
         // nome do cliente e número
         EpsonPrinterCommands.writeStringToBuffer(buffer, pedido.getNumero().toString());
+        EpsonPrinterCommands.writeStringToBuffer(buffer, "      Data/Hora: "+ Formatters.getDataHoraFormatada(pedido.getTimestamp()));
         EpsonPrinterCommands.writeCommandToBuffer(buffer, EpsonPrinterCommands.LINE_FEED);
-        EpsonPrinterCommands.writeStringToBuffer(buffer, pedido.getNomeCliente());
+        //undelina o nome do cliente
+        EpsonPrinterCommands.writeCommadWithArgsToBuffer(buffer,EpsonPrinterCommands.UNDERLINE, new byte[]{0x1});
+        EpsonPrinterCommands.writeStringToBuffer(buffer, "Cliente: "+pedido.getNomeCliente());
         //desliga bold
+        EpsonPrinterCommands.writeCommadWithArgsToBuffer(buffer,EpsonPrinterCommands.UNDERLINE, new byte[]{0x0});
         EpsonPrinterCommands.writeCommadWithArgsToBuffer(buffer,EpsonPrinterCommands.BOLD, new byte[]{0x0});
-        //todo terminar os comandos aqui
+        EpsonPrinterCommands.writeCommandToBuffer(buffer, EpsonPrinterCommands.LINE_FEED);
+        EpsonPrinterCommands.writeStringToBuffer(buffer, "---------------------------------");
+        EpsonPrinterCommands.writeCommandToBuffer(buffer, EpsonPrinterCommands.LINE_FEED);
+        if(pedido.getItensPedido() != null){
+            for(ItemPedido item: pedido.getItensPedido()){
+                EpsonPrinterCommands.writeCommandToBuffer(buffer, EpsonPrinterCommands.LINE_FEED);
+                EpsonPrinterCommands.writeCommadWithArgsToBuffer(buffer,EpsonPrinterCommands.JUSTIFICATION, new byte[]{0x0}); // texto à esquerda
+                EpsonPrinterCommands.writeStringToBuffer(buffer, item.getQuantidade()+"x - "+item.getProduto().toString());
+                EpsonPrinterCommands.writeCommadWithArgsToBuffer(buffer,EpsonPrinterCommands.JUSTIFICATION, new byte[]{0x1}); // texto ao centro
+                EpsonPrinterCommands.writeStringToBuffer(buffer, "R$"+item.getPreco());
+            }
+        }
+        EpsonPrinterCommands.writeCommandToBuffer(buffer, EpsonPrinterCommands.LINE_FEED);
+        EpsonPrinterCommands.writeStringToBuffer(buffer, "---------------------------------");
+        EpsonPrinterCommands.writeCommandToBuffer(buffer, EpsonPrinterCommands.LINE_FEED);
+        EpsonPrinterCommands.writeCommadWithArgsToBuffer(buffer,EpsonPrinterCommands.JUSTIFICATION, new byte[]{0x1}); // texto ao centro
+        if(pedido.getPagamentoPendente()){
+            EpsonPrinterCommands.writeStringToBuffer(buffer, "O pagamento está pendente e deve ser realizado no momento da retirada.");
+            EpsonPrinterCommands.writeCommandToBuffer(buffer, EpsonPrinterCommands.LINE_FEED);
+        }
+        try{
+            EpsonPrinterCommands.writeStringToBuffer(buffer, "Total: "+pedido.getCachedPreco());
+        }catch(ItensPedidoNaoInicializada e){
+            EpsonPrinterCommands.writeStringToBuffer(buffer, e.getMessage());
+        }
         EpsonPrinterCommands.writeCommadWithArgsToBuffer(buffer, EpsonPrinterCommands.PARTIAL_PAPER_CUT_WITH_FEED, new byte[]{0x11});
     }
 
