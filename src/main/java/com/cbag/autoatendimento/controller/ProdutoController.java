@@ -1,6 +1,5 @@
 package com.cbag.autoatendimento.controller;
 
-import com.cbag.autoatendimento.exception.CampoInvalidoException;
 import com.cbag.autoatendimento.exception.CodigoEmUsoException;
 import com.cbag.autoatendimento.exception.EmUsoException;
 import com.cbag.autoatendimento.exception.NaoEncontradoException;
@@ -52,14 +51,14 @@ public class ProdutoController {
     // POST /produtos retorna 201 com o produto criado ouu 409 se o código já existir
     @PostMapping
     public ResponseEntity<Produto> adicionar(@Valid @RequestBody Produto produto)
-            throws CodigoEmUsoException, NaoEncontradoException, CampoInvalidoException {
+            throws CodigoEmUsoException, NaoEncontradoException {
         return ResponseEntity.status(HttpStatus.CREATED).body(produtoService.cadastrar(produto));
     }
 
     // PUT /produtos/{codigo} : o estoque enviado é ignorado, ele só muda por movimentação
     @PutMapping("{codigo}")
     public Produto alterar(@PathVariable Long codigo, @Valid @RequestBody Produto produto)
-            throws NaoEncontradoException, CampoInvalidoException {
+            throws NaoEncontradoException {
         return produtoService.alterar(codigo, produto);
     }
 

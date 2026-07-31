@@ -32,20 +32,27 @@ public class AutoatendimentoApplication implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        dadosIniciais.popular();
+        teste();
+    }
+
+    public void teste() throws Exception{//exemplo, depois limpar
+        dadosIniciais.popular(); //exemplo, deopis limpar
 
         //teste
         System.out.println("Tipos de produto cadastrados: ");
         for (TipoProduto t : tipoProdutoService.recuperarTudo()) {
             System.out.println("    ->" + t + " (controla estoque: " + t.getControlaEstoque() + ")");
-            System.out.println("       campos: " + t.getCampos());
         }
 
         System.out.println("Produtos cadastrados: ");
         for (Produto p : produtoService.recuperarTudo()) {
             System.out.println("    ->" + p + " [" + p.getTipoProduto() + "] estoque=" + p.getQuantidadeEmEstoque()
-                    + " campos=" + p.getCampos());
+                    + " extraData=" + p.getExtraData());
         }
+
+        Produto coxinha = produtoService.recuperarPorCodigo(1L); //expl
+        System.out.println("Lendo a da coxinha: quantidade=" + coxinha.getInt("quantidade")
+                + ", frito=" + coxinha.getBool("frito") + ", recheio=" + coxinha.getString("recheio", "não informado"));
 
         System.out.println("Produtos com estoque maior que zero: ");
         for (Produto p : produtoService.recuperarWhereEstoqueMaiorQueZero()) {
@@ -59,7 +66,7 @@ public class AutoatendimentoApplication implements CommandLineRunner {
 
         Produto coca = produtoService.recuperarPorCodigo(3L);
         Produto fanta = produtoService.recuperarPorCodigo(2L);
-        movimentacaoEstoqueService.cadastrar(new MovimentacaoEstoque(coca, -10, "alterada nos testes."));
+        movimentacaoEstoqueService.cadastrar(new MovimentacaoEstoque(coca, -10, "alterada no testes."));
         movimentacaoEstoqueService.cadastrar(new MovimentacaoEstoque(fanta, 5, "alterada nos testes."));
 
         System.out.println("Estoque após as movimentações: ");

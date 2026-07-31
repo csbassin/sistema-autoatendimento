@@ -1,8 +1,6 @@
 package com.cbag.autoatendimento.config;
 
 import com.cbag.autoatendimento.enums.EstadoPedido;
-import com.cbag.autoatendimento.enums.TipoDadoCampo;
-import com.cbag.autoatendimento.exception.CampoInvalidoException;
 import com.cbag.autoatendimento.exception.CodigoEmUsoException;
 import com.cbag.autoatendimento.exception.NaoEncontradoException;
 import com.cbag.autoatendimento.model.*;
@@ -13,8 +11,6 @@ import com.cbag.autoatendimento.service.TipoProdutoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 
 @Component
@@ -28,32 +24,32 @@ public class DadosIniciais {
     @Autowired
     private PedidoService pedidoService;
 
-    public void popular() throws CodigoEmUsoException, NaoEncontradoException, CampoInvalidoException {
-        TipoProduto salgado = criarTipoSalgado();
-        TipoProduto bebida = criarTipoBebida();
+    public void popular() throws CodigoEmUsoException, NaoEncontradoException {
+        TipoProduto salgado = criarTipo("Salgado", false);
+        TipoProduto bebida = criarTipo("Bebida", true);
 
         Produto coxinha = cadastrarSeNovo(new Produto(1L, "Coxinha", 10.00, "imagem lol", salgado)
-                .setCampo("quantidade", 50)
-                .setCampo("frito", true));
+                .set("quantidade", 50)
+                .set("frito", true));
         Produto esfiha = cadastrarSeNovo(new Produto(4L, "Esfiha de carne", 8.50, "imagem", salgado)
-                .setCampo("quantidade", 12)
-                .setCampo("frito", false));
+                .set("quantidade", 12)
+                .set("frito", false));
 
         Produto fanta = new Produto(2L, "Fanta Laranja", 4.00, "imagem", bebida);
         fanta.setQuantidadeEmEstoque(0);
         fanta.setCodBarras(0L);
-        fanta.setCampo("volumeMl", 350);
+        fanta.set("volumeMl", 350).set("gelada", true);
         cadastrarSeNovo(fanta);
 
         Produto coca = new Produto(3L, "Coca-Cola", 5.00, "k", bebida);
         coca.setQuantidadeEmEstoque(10);
         coca.setCodBarras(1L);
-        coca.setCampo("volumeMl", 600);
+        coca.set("volumeMl", 600).set("gelada", true).set("sabor", "original");
         cadastrarSeNovo(coca);
 
 
         Pedido pedido = new Pedido("Josias", EstadoPedido.PREPARANDO, true);
-        try{ // tentar cadastrar pedido sem itens deve gerar exceção
+        try{
             pedidoService.cadastrar(pedido);
         }catch(Exception e){
             System.out.println(e.getMessage());
@@ -62,34 +58,20 @@ public class DadosIniciais {
         pedido.removeAmount(coxinha, 5);
         pedido.addItem(esfiha, 5);
         pedido.addItem(fanta, 2);
+        pedido.set("observacao", "sem cebola").set("mesa", 7).set("viagem", false); //wexmplo para pedido ter dados extars
 
         pedidoService.cadastrar(pedido);
-        //final: 0 coxinhas, 5 esfihas, 2 fantas
     }
 
-    private TipoProduto criarTipoSalgado() throws CodigoEmUsoException {
-        Optional<TipoProduto> existente = tipoProdutoRepository.findByNome("Salgado");
+    private TipoProduto criarTipo(String nome, boolean controlaEstoque) throws CodigoEmUsoException {
+        Optional<TipoProduto> existente = tipoProdutoRepository.findByNome(nome);
         if (existente.isPresent()) {
             return existente.get();
         }
-        TipoProduto salgado = new TipoProduto("Salgado", false);
-        salgado.adicionarCampo(new DefinicaoCampo("quantidade", "Unidades no pacote", TipoDadoCampo.INTEIRO, true));
-        salgado.adicionarCampo(new DefinicaoCampo("frito", "É frito (senão, congelado)", TipoDadoCampo.BOOLEANO, true));
-        return tipoProdutoService.cadastrar(salgado);
+        return tipoProdutoService.cadastrar(new TipoProduto(nome, controlaEstoque));
     }
 
-    private TipoProduto criarTipoBebida() throws CodigoEmUsoException {
-        Optional<TipoProduto> existente = tipoProdutoRepository.findByNome("Bebida");
-        if (existente.isPresent()) {
-            return existente.get();
-        }
-        TipoProduto bebida = new TipoProduto("Bebida", true);
-        bebida.adicionarCampo(new DefinicaoCampo("volumeMl", "Volume (ml)", TipoDadoCampo.INTEIRO, false));
-        bebida.adicionarCampo(new DefinicaoCampo("gelada", "Servida gelada", TipoDadoCampo.BOOLEANO, false));
-        return tipoProdutoService.cadastrar(bebida);
-    }
-
-    private Produto cadastrarSeNovo(Produto produto) throws NaoEncontradoException, CampoInvalidoException{
+    private Produto cadastrarSeNovo(Produto produto) throws NaoEncontradoException {
         try {
            return produtoService.cadastrar(produto);
         } catch (CodigoEmUsoException e) {

@@ -7,10 +7,9 @@ import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Entity
-public class Pedido {
+public class Pedido extends ExtraDataContainer<Pedido> {
     // acho que a variável Tipo vai ser adicionada automaticamente pelo hibernate por causa da herança
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -1,6 +1,5 @@
 package com.cbag.autoatendimento.controller;
 
-import com.cbag.autoatendimento.exception.CampoInvalidoException;
 import com.cbag.autoatendimento.exception.CodigoEmUsoException;
 import com.cbag.autoatendimento.exception.EmUsoException;
 import com.cbag.autoatendimento.exception.EstoqueInvalidoException;
@@ -31,7 +30,7 @@ public class RestExceptionHandler {
         return resposta(HttpStatus.CONFLICT, e.getMessage());
     }
 
-    @ExceptionHandler({CampoInvalidoException.class, EstoqueInvalidoException.class})
+    @ExceptionHandler({EstoqueInvalidoException.class, IllegalArgumentException.class})
     public ResponseEntity<Map<String, Object>> requisicaoInvalida(Exception e) {
         return resposta(HttpStatus.BAD_REQUEST, e.getMessage());
     }
