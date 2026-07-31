@@ -4,11 +4,8 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 
-import java.util.HashMap;
-import java.util.Map;
-
 @Entity
-public class Produto {
+public class Produto extends ExtraDataContainer<Produto> {
     @Id
     @NotNull(message = "O código deve ser informado.")
     private Long codigo;
@@ -29,12 +26,6 @@ public class Produto {
     @Column(unique = true) // faz com que o campo não possa se repetir
     private Long codBarras;
 
-    @ElementCollection(fetch = FetchType.EAGER)
-    @CollectionTable(name = "produto_campo", joinColumns = @JoinColumn(name = "produto_codigo"))
-    @MapKeyColumn(name = "chave")
-    @Column(name = "valor")
-    private Map<String, String> campos = new HashMap<>();
-
     public Produto() {}
 
     public Produto(Long codigo, String nome, double preco, String imagemBase64, TipoProduto tipoProduto) {
@@ -47,15 +38,6 @@ public class Produto {
 
     public boolean controlaEstoque() {
         return tipoProduto != null && Boolean.TRUE.equals(tipoProduto.getControlaEstoque());
-    }
-
-    public String getCampo(String chave) {
-        return campos.get(chave);
-    }
-
-    public Produto setCampo(String chave, Object valor) {
-        campos.put(chave, valor == null ? null : valor.toString());
-        return this;
     }
 
     public Long getCodigo() {
@@ -112,14 +94,6 @@ public class Produto {
 
     public void setCodBarras(Long codBarras) {
         this.codBarras = codBarras;
-    }
-
-    public Map<String, String> getCampos() {
-        return campos;
-    }
-
-    public void setCampos(Map<String, String> campos) {
-        this.campos = campos == null ? new HashMap<>() : campos;
     }
 
     @Override

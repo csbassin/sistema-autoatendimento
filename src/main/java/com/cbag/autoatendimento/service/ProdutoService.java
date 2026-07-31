@@ -1,10 +1,8 @@
 package com.cbag.autoatendimento.service;
 
-import com.cbag.autoatendimento.exception.CampoInvalidoException;
 import com.cbag.autoatendimento.exception.CodigoEmUsoException;
 import com.cbag.autoatendimento.exception.EmUsoException;
 import com.cbag.autoatendimento.exception.NaoEncontradoException;
-import com.cbag.autoatendimento.model.DefinicaoCampo;
 import com.cbag.autoatendimento.model.MovimentacaoEstoque;
 import com.cbag.autoatendimento.model.Produto;
 import com.cbag.autoatendimento.model.TipoProduto;
@@ -16,7 +14,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -31,7 +28,7 @@ public class ProdutoService {
     private TipoProdutoService tipoProdutoService;
 
     @Transactional
-    public Produto cadastrar(Produto produto) throws CodigoEmUsoException, NaoEncontradoException, CampoInvalidoException {
+    public Produto cadastrar(Produto produto) throws CodigoEmUsoException, NaoEncontradoException {
         Optional<Produto> existente = produtoRepository.findById(produto.getCodigo());
         if (existente.isPresent()) {
             throw new CodigoEmUsoException("O código " + produto.getCodigo() + " está em uso por " + existente.get());
@@ -46,7 +43,7 @@ public class ProdutoService {
     }
 
     @Transactional
-    public Produto alterar(Long codigo, Produto produto) throws NaoEncontradoException, CampoInvalidoException {
+    public Produto alterar(Long codigo, Produto produto) throws NaoEncontradoException {
         Produto atual = produtoRepository.recuperarPorCodigoETravar(codigo)
                 .orElseThrow(() -> new NaoEncontradoException("Não foi encontrado um produto com código " + codigo));
 
@@ -93,10 +90,9 @@ public class ProdutoService {
         return produtoRepository.recuperarWhereEstoqueMaiorQueZero();
     }
 
-    private void prepararParaSalvar(Produto produto) throws NaoEncontradoException, CampoInvalidoException {
+    private void prepararParaSalvar(Produto produto) throws NaoEncontradoException {
         TipoProduto tipo = resolverTipo(produto);
         produto.setTipoProduto(tipo);
-        validarCampos(produto, tipo);
 
         if (Boolean.TRUE.equals(tipo.getControlaEstoque())) {
             if (produto.getQuantidadeEmEstoque() == null) {
@@ -119,32 +115,5 @@ public class ProdutoService {
             return tipoProdutoService.recuperarPorNome(informado.getNome());
         }
         throw new NaoEncontradoException("O tipo do produto deve ser identificado pelo id ou pelo nome.");
-    }
-
-    private void validarCampos(Produto produto, TipoProduto tipo) throws CampoInvalidoException {
-        Map<String, String> valores = produto.getCampos();
-
-        for (String chave : valores.keySet()) {
-            if (tipo.getCampo(chave) == null) {
-                throw new CampoInvalidoException("O tipo " + tipo.getNome() + " não possui um campo chamado " + chave + ".");
-            }
-        }
-
-        for (DefinicaoCampo definicao : tipo.getCampos()) {
-            String valor = valores.get(definicao.getChave());
-            boolean vazio = valor == null || valor.isBlank();
-
-            if (vazio) {
-                if (Boolean.TRUE.equals(definicao.getObrigatorio())) {
-                    throw new CampoInvalidoException("O campo " + definicao.getRotulo() + " é obrigatório para produtos do tipo " + tipo.getNome() + ".");
-                }
-                valores.remove(definicao.getChave());
-                continue;
-            }
-            if (!definicao.getTipoDado().valido(valor)) {
-                throw new CampoInvalidoException("O valor \"" + valor + "\" não é válido para o campo "
-                        + definicao.getRotulo() + ", que é do tipo " + definicao.getTipoDado().getNome() + ".");
-            }
-        }
     }
 }

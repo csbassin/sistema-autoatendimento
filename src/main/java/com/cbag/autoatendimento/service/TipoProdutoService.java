@@ -3,7 +3,6 @@ package com.cbag.autoatendimento.service;
 import com.cbag.autoatendimento.exception.CodigoEmUsoException;
 import com.cbag.autoatendimento.exception.EmUsoException;
 import com.cbag.autoatendimento.exception.NaoEncontradoException;
-import com.cbag.autoatendimento.model.DefinicaoCampo;
 import com.cbag.autoatendimento.model.TipoProduto;
 import com.cbag.autoatendimento.repo.ProdutoRepository;
 import com.cbag.autoatendimento.repo.TipoProdutoRepository;
@@ -26,9 +25,6 @@ public class TipoProdutoService {
         if (existente.isPresent()) {
             throw new CodigoEmUsoException("Já existe um tipo de produto chamado " + tipoProduto.getNome());
         }
-        for (DefinicaoCampo campo : tipoProduto.getCampos()) {
-            campo.setTipoProduto(tipoProduto);
-        }
         return tipoProdutoRepository.save(tipoProduto);
     }
 
@@ -37,7 +33,6 @@ public class TipoProdutoService {
         TipoProduto atual = recuperarPorId(id);
         atual.setNome(tipoProduto.getNome());
         atual.setControlaEstoque(tipoProduto.getControlaEstoque());
-        atual.setCampos(tipoProduto.getCampos());
         return tipoProdutoRepository.save(atual);
     }
 
