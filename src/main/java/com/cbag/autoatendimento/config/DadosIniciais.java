@@ -1,18 +1,20 @@
 package com.cbag.autoatendimento.config;
 
+import com.cbag.autoatendimento.enums.EstadoPedido;
 import com.cbag.autoatendimento.enums.TipoDadoCampo;
 import com.cbag.autoatendimento.exception.CampoInvalidoException;
 import com.cbag.autoatendimento.exception.CodigoEmUsoException;
 import com.cbag.autoatendimento.exception.NaoEncontradoException;
-import com.cbag.autoatendimento.model.DefinicaoCampo;
-import com.cbag.autoatendimento.model.Produto;
-import com.cbag.autoatendimento.model.TipoProduto;
+import com.cbag.autoatendimento.model.*;
 import com.cbag.autoatendimento.repo.TipoProdutoRepository;
+import com.cbag.autoatendimento.service.PedidoService;
 import com.cbag.autoatendimento.service.ProdutoService;
 import com.cbag.autoatendimento.service.TipoProdutoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @Component
@@ -23,15 +25,17 @@ public class DadosIniciais {
     private TipoProdutoRepository tipoProdutoRepository;
     @Autowired
     private ProdutoService produtoService;
+    @Autowired
+    private PedidoService pedidoService;
 
     public void popular() throws CodigoEmUsoException, NaoEncontradoException, CampoInvalidoException {
         TipoProduto salgado = criarTipoSalgado();
         TipoProduto bebida = criarTipoBebida();
 
-        cadastrarSeNovo(new Produto(1L, "Coxinha", 10.00, "imagem lol", salgado)
+        Produto coxinha = cadastrarSeNovo(new Produto(1L, "Coxinha", 10.00, "imagem lol", salgado)
                 .setCampo("quantidade", 50)
                 .setCampo("frito", true));
-        cadastrarSeNovo(new Produto(4L, "Esfiha de carne", 8.50, "imagem", salgado)
+        Produto esfiha = cadastrarSeNovo(new Produto(4L, "Esfiha de carne", 8.50, "imagem", salgado)
                 .setCampo("quantidade", 12)
                 .setCampo("frito", false));
 
@@ -46,6 +50,21 @@ public class DadosIniciais {
         coca.setCodBarras(1L);
         coca.setCampo("volumeMl", 600);
         cadastrarSeNovo(coca);
+
+
+        Pedido pedido = new Pedido("Josias", EstadoPedido.PREPARANDO, true);
+        try{ // tentar cadastrar pedido sem itens deve gerar exceção
+            pedidoService.cadastrar(pedido);
+        }catch(Exception e){
+            System.out.println(e.getMessage());
+        }
+        pedido.addItem(coxinha, 5);
+        pedido.removeAmount(coxinha, 5);
+        pedido.addItem(esfiha, 5);
+        pedido.addItem(fanta, 2);
+
+        pedidoService.cadastrar(pedido);
+        //final: 0 coxinhas, 5 esfihas, 2 fantas
     }
 
     private TipoProduto criarTipoSalgado() throws CodigoEmUsoException {
@@ -70,11 +89,11 @@ public class DadosIniciais {
         return tipoProdutoService.cadastrar(bebida);
     }
 
-    private void cadastrarSeNovo(Produto produto) throws NaoEncontradoException, CampoInvalidoException {
+    private Produto cadastrarSeNovo(Produto produto) throws NaoEncontradoException, CampoInvalidoException{
         try {
-            produtoService.cadastrar(produto);
+           return produtoService.cadastrar(produto);
         } catch (CodigoEmUsoException e) {
-
+            return produtoService.recuperarPorCodigo(produto.getCodigo());
         }
     }
 }

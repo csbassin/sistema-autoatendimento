@@ -8,4 +8,7 @@ public class Formatters {
     public static String getDataHoraFormatada(LocalDateTime dataHora){
         return formatadorComHora.format(dataHora);
     }
+    public static String getValueAsMoney(double value){
+        return String.format("%.2f", value);
+    }
 }

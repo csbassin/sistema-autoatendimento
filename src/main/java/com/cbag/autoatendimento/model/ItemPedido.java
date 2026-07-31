@@ -58,4 +58,13 @@ public class ItemPedido {
         this.pedido = pedido;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        return ((ItemPedido) o).getPedido().equals(this.pedido) && ((ItemPedido) o).getProduto().equals(this.produto);
+    }
+    @Override
+    public String toString() {
+        return "("+quantidade+") - "+produto.getNome()+": "+quantidade+" x "+preco+" = "+(quantidade*preco);
+    }
+
 }

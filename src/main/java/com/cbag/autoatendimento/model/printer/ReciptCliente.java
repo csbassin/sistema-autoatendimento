@@ -1,7 +1,7 @@
 package com.cbag.autoatendimento.model.printer;
 
 import com.cbag.autoatendimento.config.StaticConfigObjects;
-import com.cbag.autoatendimento.exception.ItensPedidoNaoInicializada;
+import com.cbag.autoatendimento.exception.ItensPedidoNaoInicializadaException;
 import com.cbag.autoatendimento.exception.PedidoSemNumeroException;
 import com.cbag.autoatendimento.model.ItemPedido;
 import com.cbag.autoatendimento.model.Pedido;
@@ -11,9 +11,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class ReciptCliente {
@@ -54,29 +52,34 @@ public class ReciptCliente {
         EpsonPrinterCommands.writeCommadWithArgsToBuffer(buffer,EpsonPrinterCommands.UNDERLINE, new byte[]{0x0});
         EpsonPrinterCommands.writeCommadWithArgsToBuffer(buffer,EpsonPrinterCommands.BOLD, new byte[]{0x0});
         EpsonPrinterCommands.writeCommandToBuffer(buffer, EpsonPrinterCommands.LINE_FEED);
-        EpsonPrinterCommands.writeStringToBuffer(buffer, "---------------------------------");
+        EpsonPrinterCommands.writeStringToBuffer(buffer, "----------------------------------------------");
         EpsonPrinterCommands.writeCommandToBuffer(buffer, EpsonPrinterCommands.LINE_FEED);
         if(pedido.getItensPedido() != null){
             for(ItemPedido item: pedido.getItensPedido()){
                 EpsonPrinterCommands.writeCommandToBuffer(buffer, EpsonPrinterCommands.LINE_FEED);
-                EpsonPrinterCommands.writeCommadWithArgsToBuffer(buffer,EpsonPrinterCommands.JUSTIFICATION, new byte[]{0x0}); // texto à esquerda
+               // EpsonPrinterCommands.writeCommadWithArgsToBuffer(buffer,EpsonPrinterCommands.JUSTIFICATION, new byte[]{0x1}); // texto ao centro
                 EpsonPrinterCommands.writeStringToBuffer(buffer, item.getQuantidade()+"x - "+item.getProduto().toString());
-                EpsonPrinterCommands.writeCommadWithArgsToBuffer(buffer,EpsonPrinterCommands.JUSTIFICATION, new byte[]{0x1}); // texto ao centro
-                EpsonPrinterCommands.writeStringToBuffer(buffer, "R$"+item.getPreco());
+                EpsonPrinterCommands.writeStringToBuffer(buffer, "  R$ "+Formatters.getValueAsMoney(item.getPreco()));
             }
         }
+        EpsonPrinterCommands.writeCommadWithArgsToBuffer(buffer,EpsonPrinterCommands.JUSTIFICATION, new byte[]{0x0});
         EpsonPrinterCommands.writeCommandToBuffer(buffer, EpsonPrinterCommands.LINE_FEED);
-        EpsonPrinterCommands.writeStringToBuffer(buffer, "---------------------------------");
+        EpsonPrinterCommands.writeStringToBuffer(buffer, "----------------------------------------------");
+        EpsonPrinterCommands.writeCommandToBuffer(buffer, EpsonPrinterCommands.LINE_FEED);
+
+        try{
+            EpsonPrinterCommands.writeStringToBuffer(buffer, "Subtotal: R$ "+Formatters.getValueAsMoney(pedido.getCachedPreco()));
+        }catch(ItensPedidoNaoInicializadaException e){
+            EpsonPrinterCommands.writeStringToBuffer(buffer, e.getMessage());
+        }
+        EpsonPrinterCommands.writeCommandToBuffer(buffer, EpsonPrinterCommands.LINE_FEED);
+
+        EpsonPrinterCommands.writeStringToBuffer(buffer, "----------------------------------------------");
         EpsonPrinterCommands.writeCommandToBuffer(buffer, EpsonPrinterCommands.LINE_FEED);
         EpsonPrinterCommands.writeCommadWithArgsToBuffer(buffer,EpsonPrinterCommands.JUSTIFICATION, new byte[]{0x1}); // texto ao centro
         if(pedido.getPagamentoPendente()){
             EpsonPrinterCommands.writeStringToBuffer(buffer, "O pagamento está pendente e deve ser realizado no momento da retirada.");
             EpsonPrinterCommands.writeCommandToBuffer(buffer, EpsonPrinterCommands.LINE_FEED);
-        }
-        try{
-            EpsonPrinterCommands.writeStringToBuffer(buffer, "Total: "+pedido.getCachedPreco());
-        }catch(ItensPedidoNaoInicializada e){
-            EpsonPrinterCommands.writeStringToBuffer(buffer, e.getMessage());
         }
         EpsonPrinterCommands.writeCommadWithArgsToBuffer(buffer, EpsonPrinterCommands.PARTIAL_PAPER_CUT_WITH_FEED, new byte[]{0x11});
     }
@@ -102,6 +105,7 @@ public class ReciptCliente {
             Process lp = Runtime.getRuntime().exec("lp -d "+StaticConfigObjects.printerNames.get("TOTEM")+" "+f.getAbsolutePath());
             // todo pegar a saída do comando depois
             // todo tentar adicionar suporte à windows
+            //copy /b file.bin \\COMPUTER\PrinterName -> aparentemente, isso aqui funciona no windows
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

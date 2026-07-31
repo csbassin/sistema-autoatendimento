@@ -1,7 +1,7 @@
 package com.cbag.autoatendimento.model;
 
 import com.cbag.autoatendimento.enums.EstadoPedido;
-import com.cbag.autoatendimento.exception.ItensPedidoNaoInicializada;
+import com.cbag.autoatendimento.exception.ItensPedidoNaoInicializadaException;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
@@ -22,7 +22,7 @@ public class Pedido {
     @NotNull(message = "O estado do pedido deve ser informado.")
     private EstadoPedido estadoPedido;
     @Transient
-    private List<ItemPedido> itensPedido; // -> não posso salvar a lista no db
+    private ItensPedido itensPedido; // -> não posso salvar a lista no db
     @NotNull(message = "Deve-se dizer se o pagamento está pendente.")
     private Boolean pagamentoPendente;
     @Transient
@@ -34,17 +34,22 @@ public class Pedido {
         this.timestamp = LocalDateTime.now();
         this.nomeCliente = nomeCliente;
         this.estadoPedido = estadoPedido;
-        //this.itensPedido = itensPedido;
-        this.pagamentoPendente = pagamentoPendente;
-    }
-    public Pedido(String nomeCliente,  EstadoPedido estadoPedido, List<ItemPedido> itensPedido, boolean pagamentoPendente) {
-        this.timestamp = LocalDateTime.now();
-        this.nomeCliente = nomeCliente;
-        this.estadoPedido = estadoPedido;
-        this.itensPedido = itensPedido;
+        this.itensPedido = new ItensPedido();
         this.pagamentoPendente = pagamentoPendente;
     }
 
+    public void addItem(Produto produto, int quantidade) {
+        itensPedido.addItem(produto, quantidade, this);
+        invalidatePrecoCache();
+    }
+    public void removeItem(ItemPedido itemPedido) {
+        itensPedido.removeItem(itemPedido);
+        invalidatePrecoCache();
+    }
+    public void removeAmount(Produto produto, int quantidade) {
+        itensPedido.removeAmount(produto, quantidade);
+        invalidatePrecoCache();
+    }
     public Long getNumero() {
         return numero;
     }
@@ -77,11 +82,11 @@ public class Pedido {
         this.estadoPedido = estadoPedido;
     }
 
-    public List<ItemPedido> getItensPedido() {
+    public ItensPedido getItensPedido() {
         return itensPedido;
     }
 
-    public void setItensPedido(List<ItemPedido> itensPedido) {
+    public void setItensPedido(ItensPedido itensPedido) {
         this.itensPedido = itensPedido;
     }
 
@@ -99,7 +104,7 @@ public class Pedido {
 
     public Double getCachedPreco() {// atributo derivado
         if(itensPedido == null){
-            throw new ItensPedidoNaoInicializada(this);
+            throw new ItensPedidoNaoInicializadaException(this);
         }
         if(cachedPreco == null){
             cachedPreco = 0.0;
@@ -112,4 +117,5 @@ public class Pedido {
     public void invalidatePrecoCache(){
         cachedPreco = null;
     }
+
 }

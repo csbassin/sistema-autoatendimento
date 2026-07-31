@@ -124,6 +124,6 @@ public class Produto {
 
     @Override
     public String toString() {
-        return nome + " (" + codigo + ")";
+        return nome;
     }
 }
