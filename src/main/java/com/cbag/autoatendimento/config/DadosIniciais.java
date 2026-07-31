@@ -28,12 +28,8 @@ public class DadosIniciais {
         TipoProduto salgado = criarTipo("Salgado", false);
         TipoProduto bebida = criarTipo("Bebida", true);
 
-        Produto coxinha = cadastrarSeNovo(new Produto(1L, "Coxinha", 10.00, "imagem lol", salgado)
-                .set("quantidade", 50)
-                .set("frito", true));
-        Produto esfiha = cadastrarSeNovo(new Produto(4L, "Esfiha de carne", 8.50, "imagem", salgado)
-                .set("quantidade", 12)
-                .set("frito", false));
+        Produto salgados50 = cadastrarSeNovo(new Produto(1L, "Salgados", 27.00, "imagem lol", salgado).set("quantidade", 50).set("frito", true));
+        Produto salgados100 = cadastrarSeNovo(new Produto(4L, "Salgados", 50.00, "imagem", salgado).set("quantidade", 100).set("frito", true));
 
         Produto fanta = new Produto(2L, "Fanta Laranja", 4.00, "imagem", bebida);
         fanta.setQuantidadeEmEstoque(0);
@@ -54,10 +50,10 @@ public class DadosIniciais {
         }catch(Exception e){
             System.out.println(e.getMessage());
         }
-        pedido.addItem(coxinha, 5);
-        pedido.removeAmount(coxinha, 5);
-        pedido.addItem(esfiha, 5);
-        pedido.addItem(fanta, 2);
+        pedido.addItem(salgados50, 10, "25 quibes\n25 enroladinhos de salsicha"); // adiciona 500 salgados
+        pedido.removeAmount(salgados50, 3); // remove 150 salgados
+        pedido.addItem(salgados100, 3, "25 coxinhas"); // adiciona 300 salgados
+        pedido.addItem(fanta, 2, ""); // dois refrigerantes
         pedido.set("observacao", "sem cebola").set("mesa", 7).set("viagem", false); //wexmplo para pedido ter dados extars
 
         pedidoService.cadastrar(pedido);

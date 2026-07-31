@@ -60,6 +60,12 @@ public class ReciptCliente {
                // EpsonPrinterCommands.writeCommadWithArgsToBuffer(buffer,EpsonPrinterCommands.JUSTIFICATION, new byte[]{0x1}); // texto ao centro
                 EpsonPrinterCommands.writeStringToBuffer(buffer, item.getQuantidade()+"x - "+item.getProduto().toString());
                 EpsonPrinterCommands.writeStringToBuffer(buffer, "  R$ "+Formatters.getValueAsMoney(item.getPreco()));
+                if(item.getObservacao().length()>0){
+                    for(String linha:item.getObservacao().split("\n")){
+                        EpsonPrinterCommands.writeCommandToBuffer(buffer, EpsonPrinterCommands.LINE_FEED);
+                        EpsonPrinterCommands.writeStringToBuffer(buffer, "    -> "+item.getQuantidade()+"x "+linha);
+                    }
+                }
             }
         }
         EpsonPrinterCommands.writeCommadWithArgsToBuffer(buffer,EpsonPrinterCommands.JUSTIFICATION, new byte[]{0x0});

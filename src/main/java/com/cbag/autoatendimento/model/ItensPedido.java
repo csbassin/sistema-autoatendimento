@@ -3,7 +3,7 @@ package com.cbag.autoatendimento.model;
 import java.util.ArrayList;
 
 public class ItensPedido extends ArrayList<ItemPedido> {
-    public void addItem(Produto produto, int quantidade, Pedido pedido) {
+    public void addItem(Produto produto, int quantidade, Pedido pedido, String observacao) {
         if(quantidade <= 0){
             throw new IllegalArgumentException("Quantidade deve ser positiva");
         }
@@ -18,7 +18,7 @@ public class ItensPedido extends ArrayList<ItemPedido> {
             i++;
         }
         // se saiu do while, é porque esse item ainda não estava na lista
-        this.add(new ItemPedido(pedido, produto, quantidade, produto.getPreco()));
+        this.add(new ItemPedido(pedido, produto, quantidade, produto.getPreco(), observacao));
     }
     public void removeItem(ItemPedido itemPedido) {
         this.remove(itemPedido); // como reescrevi o equals, funciona

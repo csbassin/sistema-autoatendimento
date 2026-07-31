@@ -37,8 +37,8 @@ public class Pedido extends ExtraDataContainer<Pedido> {
         this.pagamentoPendente = pagamentoPendente;
     }
 
-    public void addItem(Produto produto, int quantidade) {
-        itensPedido.addItem(produto, quantidade, this);
+    public void addItem(Produto produto, int quantidade, String observacao) {
+        itensPedido.addItem(produto, quantidade, this, observacao);
         invalidatePrecoCache();
     }
     public void removeItem(ItemPedido itemPedido) {

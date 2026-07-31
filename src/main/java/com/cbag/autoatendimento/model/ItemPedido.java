@@ -2,6 +2,7 @@ package com.cbag.autoatendimento.model;
 
 import com.cbag.autoatendimento.model.idClasses.ItemPedidoId;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 
 @Entity
@@ -17,13 +18,25 @@ public class ItemPedido {
     private Integer quantidade;
     @NotNull(message = "O preço deve ser informado.")
     private Double preco;
+    //@NotEmpty
+    private String observacao;
 
     public ItemPedido(){}
-    public ItemPedido(Pedido pedido, Produto produto, int quantidade, double preco) {
+    public ItemPedido(Pedido pedido, Produto produto, int quantidade, double preco, String observacao) {
         this.pedido = pedido;
         this.produto = produto;
         this.quantidade = quantidade;
         this.preco = preco;
+        this.observacao = observacao;
+    }
+
+
+    public String getObservacao() {
+        return observacao;
+    }
+
+    public void setObservacao(String observacao) {
+        this.observacao = observacao;
     }
 
     public Produto getProduto() {
