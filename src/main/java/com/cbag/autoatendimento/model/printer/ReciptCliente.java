@@ -58,12 +58,17 @@ public class ReciptCliente {
             for(ItemPedido item: pedido.getItensPedido()){
                 EpsonPrinterCommands.writeCommandToBuffer(buffer, EpsonPrinterCommands.LINE_FEED);
                // EpsonPrinterCommands.writeCommadWithArgsToBuffer(buffer,EpsonPrinterCommands.JUSTIFICATION, new byte[]{0x1}); // texto ao centro
-                EpsonPrinterCommands.writeStringToBuffer(buffer, item.getQuantidade()+"x - "+item.getProduto().toString());
+                if(!item.getProduto().has("quantidade")){
+                    EpsonPrinterCommands.writeStringToBuffer(buffer, "("+item.getQuantidade()+") - "+item.getProduto().toString());
+                }else{
+                    EpsonPrinterCommands.writeStringToBuffer(buffer, "("+item.getQuantidade()+") - "+item.getProduto().getString("quantidade")+" unidades: "+item.getProduto().toString());
+
+                }
                 EpsonPrinterCommands.writeStringToBuffer(buffer, "  R$ "+Formatters.getValueAsMoney(item.getPreco()));
                 if(item.getObservacao().length()>0){
                     for(String linha:item.getObservacao().split("\n")){
                         EpsonPrinterCommands.writeCommandToBuffer(buffer, EpsonPrinterCommands.LINE_FEED);
-                        EpsonPrinterCommands.writeStringToBuffer(buffer, "    -> "+item.getQuantidade()+"x "+linha);
+                        EpsonPrinterCommands.writeStringToBuffer(buffer, "    -> ("+item.getQuantidade()+") "+linha);
                     }
                 }
             }
