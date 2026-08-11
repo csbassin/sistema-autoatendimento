@@ -4,6 +4,7 @@ import com.cbag.autoatendimento.exception.CodigoEmUsoException;
 import com.cbag.autoatendimento.exception.EmUsoException;
 import com.cbag.autoatendimento.exception.EstoqueInvalidoException;
 import com.cbag.autoatendimento.exception.NaoEncontradoException;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
@@ -33,6 +34,12 @@ public class RestExceptionHandler {
     @ExceptionHandler({EstoqueInvalidoException.class, IllegalArgumentException.class})
     public ResponseEntity<Map<String, Object>> requisicaoInvalida(Exception e) {
         return resposta(HttpStatus.BAD_REQUEST, e.getMessage());
+    }
+
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<Map<String, Object>> integridade(DataIntegrityViolationException e) {
+        return resposta(HttpStatus.CONFLICT, "Os dados enviados não couberam no banco ou violam uma restrição "
+                + "(código de barras repetido, texto grande demais). Detalhe: " + e.getMostSpecificCause().getMessage());
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)

@@ -1,5 +1,6 @@
 package com.cbag.autoatendimento.model;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
@@ -14,6 +15,7 @@ public class Produto extends ExtraDataContainer<Produto> {
     @NotNull(message = "É necessário informar o preço.")
     private Double preco;
     @NotEmpty(message = "É necessário atribuir uma imagem ao produto.")
+    @Column(length = 16777215) // base64 de imagem real não cabe no varchar(255) padrão
     private String imagemBase64;
 
     @NotNull(message = "É necessário informar o tipo do produto.")
@@ -28,6 +30,7 @@ public class Produto extends ExtraDataContainer<Produto> {
 
     public Produto() {}
 
+    @JsonCreator(mode = JsonCreator.Mode.DISABLED)
     public Produto(Long codigo, String nome, double preco, String imagemBase64, TipoProduto tipoProduto) {
         setCodigo(codigo);
         setNome(nome);

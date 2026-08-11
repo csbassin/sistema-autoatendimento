@@ -1,5 +1,6 @@
 package com.cbag.autoatendimento.model;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
@@ -17,6 +18,7 @@ public class TipoProduto {
 
     public TipoProduto() {}
 
+    @JsonCreator(mode = JsonCreator.Mode.DISABLED)
     public TipoProduto(String nome, boolean controlaEstoque) {
         this.nome = nome;
         this.controlaEstoque = controlaEstoque;
