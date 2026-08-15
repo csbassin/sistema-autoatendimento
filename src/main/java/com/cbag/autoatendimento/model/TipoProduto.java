@@ -15,13 +15,18 @@ public class TipoProduto {
     private String nome;
     @NotNull(message = "É necessário informar se o tipo de produto controla estoque.")
     private Boolean controlaEstoque;
+    @NotEmpty
+    @Column(length = 16777215)
+    private String imagemBase64;
+
 
     public TipoProduto() {}
 
     @JsonCreator(mode = JsonCreator.Mode.DISABLED)
-    public TipoProduto(String nome, boolean controlaEstoque) {
+    public TipoProduto(String nome, boolean controlaEstoque, String imagemBase64) {
         this.nome = nome;
         this.controlaEstoque = controlaEstoque;
+        this.imagemBase64 = imagemBase64;
     }
 
     public Long getId() {
@@ -38,6 +43,14 @@ public class TipoProduto {
 
     public void setNome(String nome) {
         this.nome = nome;
+    }
+
+    public String getImagemBase64() {
+        return imagemBase64;
+    }
+
+    public void setImagemBase64(String imagemBase64) {
+        this.imagemBase64 = imagemBase64;
     }
 
     public Boolean getControlaEstoque() {

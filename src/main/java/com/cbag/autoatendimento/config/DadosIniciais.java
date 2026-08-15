@@ -25,8 +25,8 @@ public class DadosIniciais {
     private PedidoService pedidoService;
 
     public void popular() throws CodigoEmUsoException, NaoEncontradoException {
-        TipoProduto salgado = criarTipo("Salgado", false);
-        TipoProduto bebida = criarTipo("Bebida", true);
+        TipoProduto salgado = criarTipo("Salgado", false, "imagem de salgado");
+        TipoProduto bebida = criarTipo("Bebida", true, "imagem de bebida");
 
         Produto salgados50 = cadastrarSeNovo(new Produto(1L, "Salgados", 27.00, "imagem lol", salgado).set("quantidade", 50).set("frito", true));
         Produto salgados100 = cadastrarSeNovo(new Produto(4L, "Salgados", 50.00, "imagem", salgado).set("quantidade", 100).set("frito", true));
@@ -59,12 +59,12 @@ public class DadosIniciais {
         pedidoService.cadastrar(pedido);
     }
 
-    private TipoProduto criarTipo(String nome, boolean controlaEstoque) throws CodigoEmUsoException {
+    private TipoProduto criarTipo(String nome, boolean controlaEstoque, String imagemBase64) throws CodigoEmUsoException {
         Optional<TipoProduto> existente = tipoProdutoRepository.findByNome(nome);
         if (existente.isPresent()) {
             return existente.get();
         }
-        return tipoProdutoService.cadastrar(new TipoProduto(nome, controlaEstoque));
+        return tipoProdutoService.cadastrar(new TipoProduto(nome, controlaEstoque, imagemBase64));
     }
 
     private Produto cadastrarSeNovo(Produto produto) throws NaoEncontradoException {
