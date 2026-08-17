@@ -4,5 +4,5 @@ import com.cbag.autoatendimento.model.TipoProduto;
 
 public class VariacaoSaborId {
     private TipoProduto tipoProduto;
-    private String sabor;
+    private String nome;
 }

@@ -8,6 +8,7 @@ import com.cbag.autoatendimento.repo.TipoProdutoRepository;
 import com.cbag.autoatendimento.service.PedidoService;
 import com.cbag.autoatendimento.service.ProdutoService;
 import com.cbag.autoatendimento.service.TipoProdutoService;
+import com.cbag.autoatendimento.service.VariacaoSaborService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -23,10 +24,22 @@ public class DadosIniciais {
     private ProdutoService produtoService;
     @Autowired
     private PedidoService pedidoService;
+    @Autowired
+    private VariacaoSaborService variacaoSaborService;
 
     public void popular() throws CodigoEmUsoException, NaoEncontradoException {
         TipoProduto salgado = criarTipo("Salgado", false, "imagem de salgado");
         TipoProduto bebida = criarTipo("Bebida", true, "imagem de bebida");
+
+        VariacaoSabor variacaoSaborSalgadoCoxinha = new VariacaoSabor(salgado, "Coxinha", 25);
+        VariacaoSabor variacaoSaborSalgadoKibe = new VariacaoSabor(salgado, "Kibe", 25);
+        VariacaoSabor variacaoSaborSalgadoBqp = new VariacaoSabor(salgado, "Bolinha de queijo e presunto", 25);
+        VariacaoSabor variacaoSaborSalgadoMisto = new VariacaoSabor(salgado, "Misto", 25);
+
+        cadastrarVariacao(variacaoSaborSalgadoBqp);
+        cadastrarVariacao(variacaoSaborSalgadoKibe);
+        cadastrarVariacao(variacaoSaborSalgadoMisto);
+        cadastrarVariacao(variacaoSaborSalgadoCoxinha);
 
         Produto salgados50 = cadastrarSeNovo(new Produto(1L, "Salgados", 27.00, "imagem lol", salgado).set("quantidade", 50).set("frito", true));
         Produto salgados100 = cadastrarSeNovo(new Produto(4L, "Salgados", 50.00, "imagem", salgado).set("quantidade", 100).set("frito", true));
@@ -57,6 +70,15 @@ public class DadosIniciais {
         pedido.set("observacao", "sem cebola").set("mesa", 7).set("viagem", false); //wexmplo para pedido ter dados extars
 
         pedidoService.cadastrar(pedido);
+    }
+
+    private VariacaoSabor cadastrarVariacao(VariacaoSabor variacao) throws NaoEncontradoException {
+        try {
+            return variacaoSaborService.cadastrar(variacao);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     private TipoProduto criarTipo(String nome, boolean controlaEstoque, String imagemBase64) throws CodigoEmUsoException {
