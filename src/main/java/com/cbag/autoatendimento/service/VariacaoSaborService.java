@@ -19,7 +19,7 @@ public class VariacaoSaborService {
     public List<VariacaoSabor> recuperarTudo(){
         return variacaoSaborRepository.findAll();
     }
-    public List<VariacaoSabor> findByTipoProduto(Long tipoProduto){
-        return findByTipoProduto(tipoProduto);
+    public List<VariacaoSabor> findByTipoProduto(Long tipo){
+        return variacaoSaborRepository.findByTipoProduto(tipo);
     }
 }

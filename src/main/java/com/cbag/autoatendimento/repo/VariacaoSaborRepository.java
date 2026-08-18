@@ -11,6 +11,6 @@ import java.util.List;
 
 @Repository
 public interface VariacaoSaborRepository extends JpaRepository<VariacaoSabor, Long> {
-    @Query("select variacaoSabor from VariacaoSabor variacaoSabor where variacaoSabor.tipoProduto.id =: tipoProduto")
-    List<VariacaoSabor> findByTipoProduto(@Param("tipoProduto")Long tipoProduto);
+    @Query("select variacaoSabor from VariacaoSabor variacaoSabor where variacaoSabor.tipoProduto.id=:tipo")
+    List<VariacaoSabor> findByTipoProduto(@Param("tipo")Long tipo);
 }
