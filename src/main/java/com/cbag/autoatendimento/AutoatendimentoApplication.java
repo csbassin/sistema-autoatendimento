@@ -66,7 +66,7 @@ public class AutoatendimentoApplication implements CommandLineRunner {
 
         Produto coca = produtoService.recuperarPorCodigo(3L);
         Produto fanta = produtoService.recuperarPorCodigo(2L);
-        movimentacaoEstoqueService.cadastrar(new MovimentacaoEstoque(coca, -10, "alterada no testes."));
+        movimentacaoEstoqueService.cadastrar(new MovimentacaoEstoque(coca, -9, "alterada no testes."));
         movimentacaoEstoqueService.cadastrar(new MovimentacaoEstoque(fanta, 5, "alterada nos testes."));
 
         System.out.println("Estoque após as movimentações: ");

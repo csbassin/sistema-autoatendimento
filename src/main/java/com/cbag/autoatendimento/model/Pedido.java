@@ -10,7 +10,6 @@ import java.time.LocalDateTime;
 
 @Entity
 public class Pedido extends ExtraDataContainer<Pedido> {
-    // acho que a variável Tipo vai ser adicionada automaticamente pelo hibernate por causa da herança
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long numero;

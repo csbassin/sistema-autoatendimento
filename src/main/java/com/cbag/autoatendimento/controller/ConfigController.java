@@ -8,7 +8,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 // vou usar para caso o front-end precise saber de algum item de configuração
-@Controller
+@RestController
 @RequestMapping("configuracoes")
 public class ConfigController {
     @Autowired
