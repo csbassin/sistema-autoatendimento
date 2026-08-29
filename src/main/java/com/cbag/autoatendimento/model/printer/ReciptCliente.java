@@ -5,6 +5,7 @@ import com.cbag.autoatendimento.exception.ItensPedidoNaoInicializadaException;
 import com.cbag.autoatendimento.exception.PedidoSemNumeroException;
 import com.cbag.autoatendimento.model.ItemPedido;
 import com.cbag.autoatendimento.model.Pedido;
+import com.cbag.autoatendimento.model.PedidoAgendado;
 import com.cbag.autoatendimento.util.Formatters;
 
 import java.io.File;
@@ -68,7 +69,7 @@ public class ReciptCliente {
                 if(item.getObservacao().length()>0){
                     for(String linha:item.getObservacao().split("\n")){
                         EpsonPrinterCommands.writeCommandToBuffer(buffer, EpsonPrinterCommands.LINE_FEED);
-                        EpsonPrinterCommands.writeStringToBuffer(buffer, "    -> ("+item.getQuantidade()+") "+linha);
+                        EpsonPrinterCommands.writeStringToBuffer(buffer, "    -> "+linha);
                     }
                 }
             }
@@ -91,6 +92,11 @@ public class ReciptCliente {
         if(pedido.getPagamentoPendente()){
             EpsonPrinterCommands.writeStringToBuffer(buffer, "O pagamento está pendente e deve ser realizado no momento da retirada.");
             EpsonPrinterCommands.writeCommandToBuffer(buffer, EpsonPrinterCommands.LINE_FEED);
+        }
+        if(pedido instanceof PedidoAgendado){
+            EpsonPrinterCommands.writeStringToBuffer(buffer, "A retirada do pedido está agendada para: ");
+            EpsonPrinterCommands.writeCommandToBuffer(buffer, EpsonPrinterCommands.LINE_FEED);
+            EpsonPrinterCommands.writeStringToBuffer(buffer, Formatters.getDataHoraFormatada(((PedidoAgendado) pedido).getTimestampRetirada()));
         }
         EpsonPrinterCommands.writeCommadWithArgsToBuffer(buffer, EpsonPrinterCommands.PARTIAL_PAPER_CUT_WITH_FEED, new byte[]{0x11});
     }

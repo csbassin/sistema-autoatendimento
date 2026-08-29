@@ -109,6 +109,9 @@ public class StringConverter {
                 case('A'):
                     stringAsBytes[i] = 0x41;
                     break;
+                case('Ã'):
+                    stringAsBytes[i] = 0x41;
+                    break;
                 case('B'):
                     stringAsBytes[i] = 0x42;
                     break;
@@ -203,6 +206,9 @@ public class StringConverter {
                     stringAsBytes[i] = 0x60;
                     break;
                 case('a'):
+                    stringAsBytes[i] = 0x61;
+                    break;
+                case('ã'):
                     stringAsBytes[i] = 0x61;
                     break;
                 case('b'):
