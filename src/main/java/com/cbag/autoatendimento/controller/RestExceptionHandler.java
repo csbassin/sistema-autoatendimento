@@ -2,8 +2,13 @@ package com.cbag.autoatendimento.controller;
 
 import com.cbag.autoatendimento.exception.CodigoEmUsoException;
 import com.cbag.autoatendimento.exception.EmUsoException;
+import com.cbag.autoatendimento.exception.AtendimentoEncerradoException;
 import com.cbag.autoatendimento.exception.EstoqueInvalidoException;
+import com.cbag.autoatendimento.exception.ItemConfiguracaoNaoEncontradoException;
+import com.cbag.autoatendimento.exception.ItensPedidoNaoInicializadaException;
+import com.cbag.autoatendimento.service.PedidoService;
 import com.cbag.autoatendimento.exception.NaoEncontradoException;
+import com.cbag.autoatendimento.exception.PedidoJaCanceladoException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -26,12 +31,23 @@ public class RestExceptionHandler {
         return resposta(HttpStatus.NOT_FOUND, e.getMessage());
     }
 
-    @ExceptionHandler({CodigoEmUsoException.class, EmUsoException.class})
+    @ExceptionHandler({CodigoEmUsoException.class, EmUsoException.class, PedidoJaCanceladoException.class})
     public ResponseEntity<Map<String, Object>> conflito(Exception e) {
         return resposta(HttpStatus.CONFLICT, e.getMessage());
     }
 
-    @ExceptionHandler({EstoqueInvalidoException.class, IllegalArgumentException.class})
+    @ExceptionHandler({ItemConfiguracaoNaoEncontradoException.class})
+    public ResponseEntity<Map<String, Object>> configNaoEncontrada(ItemConfiguracaoNaoEncontradoException e) {
+        return resposta(HttpStatus.NOT_FOUND, e.getMessage());
+    }
+
+    @ExceptionHandler(AtendimentoEncerradoException.class)
+    public ResponseEntity<Map<String, Object>> atendimentoEncerrado(AtendimentoEncerradoException e) {
+        return resposta(HttpStatus.CONFLICT, e.getMessage());
+    }
+
+    @ExceptionHandler({EstoqueInvalidoException.class, IllegalArgumentException.class,
+            ItensPedidoNaoInicializadaException.class, PedidoService.EstoqueInsuficienteRuntime.class})
     public ResponseEntity<Map<String, Object>> requisicaoInvalida(Exception e) {
         return resposta(HttpStatus.BAD_REQUEST, e.getMessage());
     }

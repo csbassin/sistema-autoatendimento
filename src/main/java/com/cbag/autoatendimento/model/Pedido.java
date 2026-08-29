@@ -102,7 +102,7 @@ public class Pedido extends ExtraDataContainer<Pedido> {
 
     public Double getCachedPreco() {// atributo derivado
         if(itensPedido == null){
-            throw new ItensPedidoNaoInicializadaException(this);
+            return 0.0;
         }
         if(cachedPreco == null){
             cachedPreco = 0.0;

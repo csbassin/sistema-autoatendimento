@@ -8,7 +8,7 @@ import com.cbag.autoatendimento.repo.TipoProdutoRepository;
 import com.cbag.autoatendimento.service.PedidoService;
 import com.cbag.autoatendimento.service.ProdutoService;
 import com.cbag.autoatendimento.service.TipoProdutoService;
-import com.cbag.autoatendimento.service.VariacaoSaborService;
+import com.cbag.autoatendimento.service.MovimentacaoEstoqueService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -25,24 +25,20 @@ public class DadosIniciais {
     @Autowired
     private PedidoService pedidoService;
     @Autowired
-    private VariacaoSaborService variacaoSaborService;
+    private MovimentacaoEstoqueService movimentacaoEstoqueService;
+
+    private static final java.util.List<String> SABORES_SALGADO =
+            java.util.List.of("Coxinha", "Kibe", "Misto", "Bolinha de queijo e presunto");
 
     public void popular() throws CodigoEmUsoException, NaoEncontradoException {
         TipoProduto salgado = criarTipo("Salgado", false, "imagem de salgado");
         TipoProduto bebida = criarTipo("Bebida", true, "imagem de bebida");
 
-        VariacaoSabor variacaoSaborSalgadoCoxinha = new VariacaoSabor(salgado, "Coxinha", 25);
-        VariacaoSabor variacaoSaborSalgadoKibe = new VariacaoSabor(salgado, "Kibe", 25);
-        VariacaoSabor variacaoSaborSalgadoBqp = new VariacaoSabor(salgado, "Bolinha de queijo e presunto", 25);
-        VariacaoSabor variacaoSaborSalgadoMisto = new VariacaoSabor(salgado, "Misto", 25);
 
-        cadastrarVariacao(variacaoSaborSalgadoBqp);
-        cadastrarVariacao(variacaoSaborSalgadoKibe);
-        cadastrarVariacao(variacaoSaborSalgadoMisto);
-        cadastrarVariacao(variacaoSaborSalgadoCoxinha);
-
-        Produto salgados50 = cadastrarSeNovo(new Produto(1L, "Salgados", 27.00, "imagem lol", salgado).set("quantidade", 50).set("frito", true));
-        Produto salgados100 = cadastrarSeNovo(new Produto(4L, "Salgados", 50.00, "imagem", salgado).set("quantidade", 100).set("frito", true));
+        Produto salgados50 = cadastrarSeNovo(new Produto(1L, "Salgados", 27.00, "imagem lol", salgado).set("quantidade", 50).set("frito", true)
+                .set("sabores", SABORES_SALGADO).set("incrementoSabor", 25));
+        Produto salgados100 = cadastrarSeNovo(new Produto(4L, "Salgados", 50.00, "imagem", salgado).set("quantidade", 100).set("frito", true)
+                .set("sabores", SABORES_SALGADO).set("incrementoSabor", 25));
 
         Produto fanta = new Produto(2L, "Fanta Laranja", 4.00, "imagem", bebida);
         fanta.setQuantidadeEmEstoque(0);
@@ -50,12 +46,26 @@ public class DadosIniciais {
         fanta.set("volumeMl", 350).set("gelada", true);
         cadastrarSeNovo(fanta);
 
+        Produto guaracamp = new Produto(5L, "Guaracamp", 3.50, "imagem legal", bebida);
+        guaracamp.setQuantidadeEmEstoque(30);
+        guaracamp.setCodBarras(2L);
+        guaracamp.set("volumeMl", 290)
+                 .set("sabores", java.util.List.of("Natural", "Maracujá", "Açaícamp", "Uva"))
+                 .set("incrementoSabor", 1);
+        cadastrarSeNovo(guaracamp);
+
         Produto coca = new Produto(3L, "Coca-Cola", 5.00, "k", bebida);
         coca.setQuantidadeEmEstoque(10);
         coca.setCodBarras(1L);
         coca.set("volumeMl", 600).set("gelada", true).set("sabor", "original");
         cadastrarSeNovo(coca);
 
+
+        try {
+            movimentacaoEstoqueService.cadastrar(new MovimentacaoEstoque(fanta, 10, "Reposição inicial."));
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
 
         Pedido pedido = new Pedido("Josias", EstadoPedido.PREPARANDO, true);
         try{
@@ -69,17 +79,13 @@ public class DadosIniciais {
         pedido.addItem(fanta, 2, ""); // dois refrigerantes
         pedido.set("observacao", "sem cebola").set("mesa", 7).set("viagem", false); //wexmplo para pedido ter dados extars
 
-        pedidoService.cadastrar(pedido);
+        try {
+            pedidoService.cadastrar(pedido);
+        } catch (Exception e) {
+            System.out.println("pedido exemplo teste falhou " + e.getMessage());
+        }
     }
 
-    private VariacaoSabor cadastrarVariacao(VariacaoSabor variacao) throws NaoEncontradoException {
-        try {
-            return variacaoSaborService.cadastrar(variacao);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
 
     private TipoProduto criarTipo(String nome, boolean controlaEstoque, String imagemBase64) throws CodigoEmUsoException {
         Optional<TipoProduto> existente = tipoProdutoRepository.findByNome(nome);

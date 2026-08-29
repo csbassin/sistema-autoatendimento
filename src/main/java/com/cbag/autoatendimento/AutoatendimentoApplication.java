@@ -31,8 +31,12 @@ public class AutoatendimentoApplication implements CommandLineRunner {
 
 
     @Override
-    public void run(String... args) throws Exception {
-        teste();
+    public void run(String... args) {
+        try {
+            teste();
+        } catch (Exception e) {
+            System.out.println("teste falhou: " + e.getMessage());
+        }
     }
 
     public void teste() throws Exception{//exemplo, depois limpar

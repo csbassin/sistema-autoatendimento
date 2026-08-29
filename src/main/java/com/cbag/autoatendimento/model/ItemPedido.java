@@ -1,6 +1,7 @@
 package com.cbag.autoatendimento.model;
 
 import com.cbag.autoatendimento.model.idClasses.ItemPedidoId;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
@@ -63,6 +64,7 @@ public class ItemPedido {
         this.quantidade = quantidade;
     }
 
+    @JsonIgnore
     public Pedido getPedido() {
         return pedido;
     }
@@ -73,7 +75,19 @@ public class ItemPedido {
 
     @Override
     public boolean equals(Object o) {
-        return ((ItemPedido) o).getPedido().equals(this.pedido) && ((ItemPedido) o).getProduto().equals(this.produto);
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof ItemPedido outro)) {
+            return false;
+        }
+        return java.util.Objects.equals(outro.getPedido(), this.pedido)
+                && java.util.Objects.equals(outro.getProduto(), this.produto);
+    }
+
+    @Override
+    public int hashCode() {
+        return java.util.Objects.hash(pedido, produto);
     }
     @Override
     public String toString() {

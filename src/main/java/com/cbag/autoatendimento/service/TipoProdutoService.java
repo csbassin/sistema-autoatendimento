@@ -33,6 +33,9 @@ public class TipoProdutoService {
         TipoProduto atual = recuperarPorId(id);
         atual.setNome(tipoProduto.getNome());
         atual.setControlaEstoque(tipoProduto.getControlaEstoque());
+        if (tipoProduto.getImagemBase64() != null) {
+            atual.setImagemBase64(tipoProduto.getImagemBase64());
+        }
         return tipoProdutoRepository.save(atual);
     }
 

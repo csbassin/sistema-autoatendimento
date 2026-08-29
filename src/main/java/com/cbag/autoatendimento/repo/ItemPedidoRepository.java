@@ -8,4 +8,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface ItemPedidoRepository extends JpaRepository<ItemPedido, ItemPedidoId> {
     boolean existsByProdutoCodigo(Long codigo);
+
+    java.util.List<ItemPedido> findByPedidoNumero(Long numero);
 }
