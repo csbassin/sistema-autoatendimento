@@ -119,9 +119,13 @@ public class ReciptCliente {
             fos.write(bufferAsArray);
             fos.close();
             //rodando o lp -d [printer name] [filepath]
-            Process lp = Runtime.getRuntime().exec("lp -d "+StaticConfigObjects.printerNames.get("TOTEM")+" "+f.getAbsolutePath());
+            Process print;
+            if(!(StaticConfigObjects.os.contains("Windows"))){ // se não for Windows
+                print = Runtime.getRuntime().exec("lp -d "+StaticConfigObjects.printerNames.get("TOTEM")+" "+f.getAbsolutePath());
+            }else{
+                print = Runtime.getRuntime().exec("copy /b "+f.getAbsolutePath()+" \\\\"+StaticConfigObjects.computerName+"\\"+StaticConfigObjects.printerNames.get("TOTEM"));
+            }
             // todo pegar a saída do comando depois
-            // todo tentar adicionar suporte à windows
             //copy /b file.bin \\COMPUTER\PrinterName -> aparentemente, isso aqui funciona no windows
         } catch (IOException e) {
             throw new RuntimeException(e);

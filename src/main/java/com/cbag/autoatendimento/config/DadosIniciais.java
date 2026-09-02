@@ -3,12 +3,10 @@ package com.cbag.autoatendimento.config;
 import com.cbag.autoatendimento.enums.EstadoPedido;
 import com.cbag.autoatendimento.exception.CodigoEmUsoException;
 import com.cbag.autoatendimento.exception.NaoEncontradoException;
+import com.cbag.autoatendimento.exception.SenhaJaDefinidaException;
 import com.cbag.autoatendimento.model.*;
 import com.cbag.autoatendimento.repo.TipoProdutoRepository;
-import com.cbag.autoatendimento.service.PedidoService;
-import com.cbag.autoatendimento.service.ProdutoService;
-import com.cbag.autoatendimento.service.TipoProdutoService;
-import com.cbag.autoatendimento.service.MovimentacaoEstoqueService;
+import com.cbag.autoatendimento.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -31,6 +29,12 @@ public class DadosIniciais {
             java.util.List.of("Coxinha", "Kibe", "Misto", "Bolinha de queijo e presunto");
 
     public void popular() throws CodigoEmUsoException, NaoEncontradoException {
+        try{
+            SenhaService.setSenha("teste123");
+        }catch(SenhaJaDefinidaException e){
+            System.out.println("A senha não foi reescrita porque já foi definida.");
+        }
+
         TipoProduto salgado = criarTipo("Salgado", false, "imagem de salgado");
         TipoProduto bebida = criarTipo("Bebida", true, "imagem de bebida");
 

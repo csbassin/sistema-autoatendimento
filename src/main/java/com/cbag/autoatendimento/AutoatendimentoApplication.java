@@ -79,6 +79,8 @@ public class AutoatendimentoApplication implements CommandLineRunner {
         }
 
         System.out.println(StaticConfigObjects.userHomeDir);
+        System.out.println(StaticConfigObjects.os);
+        System.out.println(StaticConfigObjects.computerName);
         //fim teste
     }
 }

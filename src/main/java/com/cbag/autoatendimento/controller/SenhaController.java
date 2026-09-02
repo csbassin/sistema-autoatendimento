@@ -11,11 +11,10 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("senha")
 public class SenhaController {
 
-    // GET /configuracoes/atendimentoLiberado
-    @GetMapping()
+    /*@GetMapping()
     public String getSenha() {
         return SenhaService.getSenha();
-    }
+    } não precisamos desse method */
 
     @PostMapping
     public void setSenha(@RequestParam("value") String value) {
